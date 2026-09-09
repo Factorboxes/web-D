@@ -4,15 +4,27 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#EC681D">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" type="image/png" href="./icon-192.png">
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="ต้นทุนกล่อง">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <script type="module" src="./pwa.js?v=20260909-pwa5"></script>
   <title>คำนวณต้นทุนกล่อง · Factorboxes</title>
   <meta name="description" content="กรอกขนาดกล่องและราคากระดาษ เพื่อคำนวณต้นทุนต่อกล่อง กำไร และราคาขายที่ต้องการ">
-  <link rel="stylesheet" href="./styles.css?v=20260909-profit2">
+  <link rel="stylesheet" href="./styles.css?v=20260909-pwa5">
   <script type="module" src="./app.js?v=20260909-profit2"></script>
 </head>
 <body>
-  <header class="topbar"><div class="brand"><span class="brand-mark" aria-hidden="true">F.</span><span>FACTORBOXES<small>เครื่องคำนวณต้นทุน</small></span></div><button type="button" class="reset" id="reset">เริ่มใหม่</button></header>
+  <header class="topbar"><div class="brand"><img class="brand-mark" src="./icon-192.png" width="42" height="42" alt=""><span>FACTORBOXES<small>เครื่องคำนวณต้นทุน</small></span></div><button type="button" class="reset" id="reset">เริ่มใหม่</button></header>
   <main>
     <div class="page-heading"><div><p class="eyebrow">คำนวณก่อนตั้งราคา</p><h1>ต้นทุนกล่อง <span>รู้ได้ทันที</span></h1></div><p class="intro">กรอกขนาดและราคากระดาษที่ซื้อจริง<br>เปลี่ยนตัวเลขแล้วผลคำนวณจะอัปเดตทันที</p></div>
+    <section class="install-card" id="install-card" aria-label="ติดตั้งโปรแกรม">
+      <img src="./icon-192.png" width="48" height="48" alt="">
+      <div><strong>Factorboxes ต้นทุนกล่อง</strong><p>เปิดใช้งานจากไอคอนบนหน้าจอ</p></div>
+      <button type="button" id="install-button">เพิ่มลงหน้าจอ</button>
+    </section>
     <div class="workspace">
       <form id="calculator" novalidate>
         <section class="panel" aria-labelledby="size-heading">
@@ -79,5 +91,12 @@
   </main>
   <div class="action-bar"><div><span>ต้นทุน + กำไร ก่อน VAT</span><strong id="mobile-cost">—</strong></div><button type="button" id="calculate-button">ดูต้นทุนและกำไร <span aria-hidden="true">↗</span></button></div>
   <div class="toast" id="toast" role="status" hidden>คืนค่าตัวอย่างแล้ว</div>
+  <dialog id="install-help" class="install-dialog" aria-labelledby="install-help-title">
+    <h2 id="install-help-title">เพิ่มโปรแกรมลงหน้าจอ</h2>
+    <p id="install-help-intro"></p>
+    <ol id="install-help-steps"></ol>
+    <p class="hint">เปิดจากลิงก์เว็บไซต์ของโปรแกรม ไม่ใช่หน้ารายการไฟล์ GitHub</p>
+    <form method="dialog"><button type="submit" autofocus>เข้าใจแล้ว</button></form>
+  </dialog>
 </body>
 </html>
