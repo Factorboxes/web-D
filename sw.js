@@ -1,7 +1,7 @@
 const CACHE_PREFIX='factorboxes-calculator:'+self.registration.scope+':';
-const CACHE_NAME=CACHE_PREFIX+'pwa5';
+const CACHE_NAME=CACHE_PREFIX+'rainbow6';
 const SHELL='./index.html';
-const FILES=[SHELL,'./styles.css?v=20260909-pwa5','./app.js?v=20260909-profit2','./math.mjs?v=20260909-profit2','./pwa.js?v=20260909-pwa5','./manifest.webmanifest','./thai-regular.woff','./thai-bold.woff','./icon-192.png','./icon-512.png','./apple-touch-icon.png'];
+const FILES=[SHELL,'./styles.css?v=20260909-pwa5','./app.js?v=20260909-profit2','./math.mjs?v=20260909-profit2','./pwa.js?v=20260909-pwa5','./manifest.webmanifest?v=rainbow6','./thai-regular.woff','./thai-bold.woff','./icon-192.png?v=rainbow6','./icon-512.png?v=rainbow6','./apple-touch-icon.png?v=rainbow6','./icon-maskable.png?v=rainbow6'];
 const urlFor=path=>new URL(path,self.registration.scope).href;
 const ASSETS=new Set(FILES.map(urlFor));
 self.addEventListener('install',event=>{
