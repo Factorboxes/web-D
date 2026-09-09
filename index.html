@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#EC681D">
+  <title>คำนวณต้นทุนกล่อง · Factorboxes</title>
+  <meta name="description" content="กรอกขนาดกล่องและราคากระดาษ เพื่อคำนวณต้นทุนต่อกล่อง กำไร และราคาขายที่ต้องการ">
+  <link rel="stylesheet" href="./styles.css?v=20260909-profit2">
+  <script type="module" src="./app.js?v=20260909-profit2"></script>
+</head>
+<body>
+  <header class="topbar"><div class="brand"><span class="brand-mark" aria-hidden="true">F.</span><span>FACTORBOXES<small>เครื่องคำนวณต้นทุน</small></span></div><button type="button" class="reset" id="reset">เริ่มใหม่</button></header>
+  <main>
+    <div class="page-heading"><div><p class="eyebrow">คำนวณก่อนตั้งราคา</p><h1>ต้นทุนกล่อง <span>รู้ได้ทันที</span></h1></div><p class="intro">กรอกขนาดและราคากระดาษที่ซื้อจริง<br>เปลี่ยนตัวเลขแล้วผลคำนวณจะอัปเดตทันที</p></div>
+    <div class="workspace">
+      <form id="calculator" novalidate>
+        <section class="panel" aria-labelledby="size-heading">
+          <div class="section-title"><span class="step">01</span><h2 id="size-heading">ขนาดที่ต้องการคำนวณ</h2></div>
+          <div class="mode-tabs" role="tablist" aria-label="วิธีคำนวณ"><button type="button" id="box-tab" role="tab" aria-selected="true" aria-controls="box-fields" data-mode="box">จากขนาดกล่อง</button><button type="button" id="sheet-tab" role="tab" aria-selected="false" aria-controls="sheet-fields" tabindex="-1" data-mode="sheet">จากขนาดแผ่น</button></div>
+          <div id="box-fields" role="tabpanel" aria-labelledby="box-tab">
+            <div class="fields three">
+              <label>กว้าง <span class="unit-label">ซม.</span><input name="width" type="number" inputmode="decimal" min="0.001" step="any" value="32" required></label>
+              <label>ยาว <span class="unit-label">ซม.</span><input name="length" type="number" inputmode="decimal" min="0.001" step="any" value="75" required></label>
+              <label>สูง <span class="unit-label">ซม.</span><input name="height" type="number" inputmode="decimal" min="0.001" step="any" value="24" required></label>
+            </div>
+            <details class="inline-details"><summary>ระยะเผื่อกระดาษ</summary><div class="fields two"><label>เผื่อความกว้าง <span class="unit-label">ซม.</span><input name="widthAllowance" type="number" inputmode="decimal" min="0" step="any" value="0.4" required></label><label>เผื่อต่อลิ้นกาว <span class="unit-label">ซม.</span><input name="glueAllowance" type="number" inputmode="decimal" min="0" step="any" value="3.175" required></label></div><p class="hint">ใช้สูตรคลี่กล่องตามไฟล์เดิม หากมีขนาดแผ่นจริงให้เลือก “จากขนาดแผ่น”</p></details>
+          </div>
+          <div id="sheet-fields" role="tabpanel" aria-labelledby="sheet-tab" hidden>
+            <label>หน่วยขนาดแผ่น<select name="sheetUnit" disabled><option value="cm">เซนติเมตร (ซม.)</option><option value="inch">นิ้ว</option><option value="m">เมตร</option><option value="ft">ฟุต</option></select></label>
+            <div class="fields two"><label>แผ่นกว้าง <span class="unit-label" id="sheet-width-unit">ซม.</span><input name="sheetWidth" type="number" inputmode="decimal" min="0" step="any" value="56.4" required disabled></label><label>แผ่นยาว <span class="unit-label" id="sheet-length-unit">ซม.</span><input name="sheetLength" type="number" inputmode="decimal" min="0" step="any" value="217.175" required disabled></label></div>
+            <label class="single-field">จำนวนกล่องที่ได้ต่อแผ่น<input name="boxesPerSheet" type="number" inputmode="numeric" min="1" step="1" value="1" required disabled></label>
+            <p class="hint">ใช้ขนาดแผ่นที่ซื้อจริง รวมขอบตัดแล้ว เมื่อเปลี่ยนหน่วย โปรแกรมจะแปลงตัวเลขให้โดยคงขนาดแผ่นเดิม</p>
+          </div>
+        </section>
+        <section class="panel" aria-labelledby="paper-heading">
+          <div class="section-title"><span class="step">02</span><h2 id="paper-heading">ราคากระดาษ</h2><span class="section-note">ปรับได้ทุกครั้ง</span></div>
+          <div class="fields two rate-fields"><label>ราคาซื้อกระดาษ<input class="rate-input" name="paperRate" type="number" inputmode="decimal" min="0.000001" step="any" value="0.68" required></label><label>หน่วยราคา<select name="paperUnit"><option value="sqft">บาท / ตารางฟุต</option><option value="sqm">บาท / ตารางเมตร</option></select></label></div>
+          <div class="fields two"><label>จำนวนที่ผลิต <span class="unit-label">กล่อง</span><input name="quantity" type="number" inputmode="numeric" min="1" step="1" value="1000" required></label><label>ค่าเผื่อเพิ่มต้นทุนกระดาษ <span class="unit-label">%</span><input name="paperAllowance" type="number" inputmode="decimal" min="0" step="any" value="5" required></label></div>
+          <p class="hint">0.68 บาท/ตร.ฟุต เป็นค่าจากไฟล์เดิม กรุณาเปลี่ยนเป็นราคาซื้อของช่วงที่ต้องการคำนวณ</p>
+        </section>
+        <section class="panel cost-details" id="cost-details" aria-labelledby="cost-heading" tabindex="-1">
+          <div class="section-title"><span class="step">03</span><h2 id="cost-heading">ต้นทุนและกำไร</h2></div>
+          <div class="details-body">
+            <div class="fields two"><label>ราคาต้นทุน <span class="unit-label">บาท/กล่อง</span><input name="costPrice" type="number" inputmode="decimal" min="0" step="any" placeholder="ใช้ต้นทุนกระดาษ" aria-describedby="cost-input-help"></label><label>ฐานราคาต้นทุน<select name="costBasis"><option value="ex">ยังไม่รวม VAT</option><option value="inc">รวม VAT แล้ว</option></select></label><label>อัตรา VAT <span class="unit-label">%</span><input name="vat" type="number" inputmode="decimal" min="0" max="100" step="any" value="7" required></label><label>ส่วนลดจากราคาขาย <span class="unit-label">%</span><input name="discount" type="number" inputmode="decimal" min="0" max="99.9999" step="any" value="0" required></label><label>ค่าธรรมเนียมการขาย <span class="unit-label">%</span><input name="fee" type="number" inputmode="decimal" min="0" max="99.9999" step="any" value="0" required></label><div class="profit-choice"><label>กำไรที่ต้องการ <span class="unit-label">%</span><input name="targetMargin" type="number" inputmode="decimal" min="0" step="any" value="25" required aria-describedby="profit-basis-help"></label><select name="profitBasis" aria-label="วิธีคิดเปอร์เซ็นต์กำไร"><option value="markup">บวกกำไรจากต้นทุน</option><option value="margin">กำไรเป็น % ของยอดขาย</option></select></div></div>
+            <p class="hint" id="cost-input-help">กรอกต้นทุนรวมจริงต่อกล่อง ซึ่งรวมค่ากระดาษแล้ว เว้นว่างเพื่อใช้ต้นทุนกระดาษจากด้านบน</p>
+            <p class="hint" id="profit-basis-help">บวกกำไร 25% จากต้นทุน 100 บาท = 125 บาท ก่อนส่วนลด ค่าธรรมเนียม และ VAT</p>
+            <div class="pricing-result" aria-labelledby="pricing-title">
+              <h3 id="pricing-title">ราคาตั้งขาย รวมต้นทุนและกำไร</h3>
+              <div class="pricing-number"><output id="cost-profit-price">—</output><span>บาท/กล่อง</span></div>
+              <p class="pricing-tax-note">ก่อนส่วนลดและก่อน VAT</p>
+              <dl class="pricing-breakdown">
+                <div><dt>ราคาตั้งขายรวม VAT</dt><dd id="cost-profit-vat-price">—</dd></div>
+                <div id="discounted-price-row" hidden><dt>ราคาหลังส่วนลด รวม VAT</dt><dd id="cost-profit-discounted-price">—</dd></div>
+                <div class="pricing-divider"><dt>ต้นทุนสินค้า ก่อน VAT</dt><dd id="pricing-cost">—</dd></div>
+                <div><dt>ค่าธรรมเนียมต่อกล่อง</dt><dd id="pricing-fee">—</dd></div>
+                <div class="pricing-profit"><dt>กำไรต่อกล่อง หลังหักค่าธรรมเนียม</dt><dd id="pricing-profit">—</dd></div>
+              </dl>
+              <p class="hint" id="pricing-note"></p>
+            </div>
+          </div>
+        </section>
+        <p id="input-error" class="input-error" role="alert" hidden></p>
+      </form>
+      <aside class="results" id="results" aria-labelledby="results-heading" tabindex="-1">
+        <div class="result-top"><h2 id="results-heading">ผลคำนวณของคุณ</h2><span id="quantity-label">1,000 กล่อง</span></div>
+        <div class="cost-hero"><p>ต้นทุนกระดาษต่อกล่อง</p><div class="hero-number"><span class="currency">฿</span><output id="paper-per-box">—</output></div><p id="paper-scope">รวมค่าเผื่อเพิ่ม 5%</p><div class="paper-total"><span>ค่ากระดาษรวมของงาน</span><strong id="paper-total">—</strong></div></div>
+        <div class="result-body">
+          <div class="measurements"><div><span>ขนาดแผ่นกระดาษ</span><strong id="blank-size">—</strong><small id="blank-cm" hidden></small></div><div><span>พื้นที่ต่อแผ่น</span><strong id="area">—</strong><small id="area-ft">—</small></div></div>
+          <dl class="cost-breakdown"><div><dt>ต้นทุนสินค้าต่อกล่อง ก่อน VAT</dt><dd id="cost-per-box">—</dd></div><div><dt>ค่าธรรมเนียมต่อกล่องตามราคาแนะนำ</dt><dd id="fee-per-box">—</dd></div><div class="total"><dt>ต้นทุนรวมการขายต่อกล่อง</dt><dd id="all-per-box">—</dd></div><div><dt>ต้นทุนรวมของงาน ก่อน VAT</dt><dd id="all-total">—</dd></div></dl>
+          <div class="profit-box"><div><span id="profit-title">กำไรเมื่อขายตามราคาแนะนำ</span><strong id="profit-total">—</strong></div><span id="profit-margin">—</span></div>
+          <p class="scope-note" id="cost-scope">ใช้ต้นทุนกระดาษเป็นฐานคำนวณราคาขาย</p>
+          <details class="sale-details" open><summary>ราคาขายที่คำนวณจากต้นทุน</summary><dl class="cost-breakdown"><div class="target"><dt>ราคาขายแนะนำต่อกล่อง<small id="target-label">ก่อนลดและก่อน VAT</small></dt><dd id="target-price">—</dd></div><div><dt>ยอดขายตามราคาแนะนำ หลังลด / ก่อน VAT</dt><dd id="revenue">—</dd></div><div><dt>VAT ขายตามราคาแนะนำ</dt><dd id="vat-total">—</dd></div><div><dt>ยอดเรียกเก็บตามราคาแนะนำ รวม VAT</dt><dd id="invoice-total">—</dd></div></dl><p id="target-note" class="hint"></p></details>
+        </div>
+      </aside>
+    </div>
+    <details class="method"><summary>สูตรและวิธีใช้</summary><div class="method-content"><p><strong>จากขนาดกล่อง:</strong> หน้ากระดาษ = กว้าง + สูง + ระยะเผื่อความกว้าง ความยาวแผ่น = 2 × (กว้าง + ยาว) + ระยะต่อลิ้นกาว ตามสูตรในไฟล์เดิม</p><p><strong>หน่วยขนาดแผ่น:</strong> 1 นิ้ว = 2.54 ซม. 1 เมตร = 100 ซม. และ 1 ฟุต = 30.48 ซม. เลือกหน่วยความกว้างและความยาวแยกจากหน่วยราคากระดาษได้</p><p><strong>ราคากระดาษ:</strong> พื้นที่แผ่น × ราคาต่อหน่วย × (1 + ค่าเผื่อเพิ่ม) โดย 1 ตารางฟุต = 0.09290304 ตารางเมตร ค่าเผื่อเพิ่มเป็นการบวกต้นทุน ไม่ใช่อัตราของเสียจากการผลิต</p><p><strong>กรณีหลายกล่องต่อแผ่น:</strong> ปัดจำนวนแผ่นที่ต้องซื้อขึ้นเป็นจำนวนเต็ม แล้วเฉลี่ยต้นทุนตามจำนวนกล่องที่ผลิต</p><p><strong>ราคาต้นทุน:</strong> กรอกต้นทุนรวมต่อกล่อง ซึ่งรวมค่ากระดาษและค่าใช้จ่ายผลิตแล้ว หากเว้นว่าง โปรแกรมจะใช้ต้นทุนกระดาษเป็นฐาน เมื่อเลือกฐานต้นทุนรวม VAT โปรแกรมจะแยก VAT ออกจากตัวเลขที่กรอก</p><p><strong>บวกกำไรจากต้นทุน:</strong> ราคาตั้งขาย = ต้นทุนสินค้าก่อน VAT × (1 + กำไรที่ต้องการ) ÷ (1 − ค่าธรรมเนียม) ÷ (1 − ส่วนลด) เช่น ต้นทุน 100 บาท กำไร 25% โดยไม่มีส่วนลดหรือค่าธรรมเนียม ได้ราคาขาย 125 บาท</p><p><strong>กำไรเป็นเปอร์เซ็นต์ของยอดขาย:</strong> ราคาตั้งขาย = ต้นทุนสินค้าก่อน VAT ÷ (1 − กำไรที่ต้องการ − ค่าธรรมเนียม) ÷ (1 − ส่วนลด) เช่น ต้นทุน 100 บาท กำไร 25% โดยไม่มีส่วนลดหรือค่าธรรมเนียม ได้ราคาขาย 133.34 บาท เมื่อปัดขึ้นเป็นสตางค์</p><p>ทุกสูตรแปลงเปอร์เซ็นต์เป็นทศนิยมก่อนคำนวณ ราคาตั้งขายก่อน VAT ปัดขึ้นเป็นสตางค์เพื่อให้กำไรถึงเป้าหมาย กำไรต่อกล่อง = ราคาหลังส่วนลดก่อน VAT − ต้นทุนสินค้า − ค่าธรรมเนียม ส่วนลดคิดจากราคาตั้งขาย ส่วนค่าธรรมเนียมคิดจากยอดขายหลังส่วนลดก่อน VAT ยอด VAT ของงานคำนวณจากยอดขายรวมก่อน VAT โดยไม่ปัดค่าระหว่างขั้นตอน</p><p>กำไรที่แสดงเป็นประมาณการเมื่อขายครบจำนวนตามราคาแนะนำ ก่อนภาษีเงินได้และค่าใช้จ่ายที่ไม่ได้รวมไว้ในต้นทุน หากมี VAT ที่ขอคืนไม่ได้ให้รวมส่วนนั้นในต้นทุนและเลือกฐานยังไม่รวม VAT อัตรา VAT เริ่มต้น 7% มาจากไฟล์เดิมและแก้ไขได้</p><p>ค่าที่แสดงเริ่มต้นใช้สำหรับทดลองคำนวณ หน้านี้คำนวณงานปัจจุบันและไม่บันทึกข้อมูลเมื่อปิดหรือโหลดหน้าใหม่</p></div></details>
+    <footer>FACTORBOXES <span>คำนวณด้วยราคาซื้อจริงในแต่ละช่วงเวลา</span></footer>
+  </main>
+  <div class="action-bar"><div><span>ต้นทุน + กำไร ก่อน VAT</span><strong id="mobile-cost">—</strong></div><button type="button" id="calculate-button">ดูต้นทุนและกำไร <span aria-hidden="true">↗</span></button></div>
+  <div class="toast" id="toast" role="status" hidden>คืนค่าตัวอย่างแล้ว</div>
+</body>
+</html>
