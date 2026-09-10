@@ -1,6 +1,6 @@
-import {calculate,lengthUnits,convertLength} from './math.mjs?v=20260909-profit2';
+import {calculate,lengthUnits,convertLength,parseDimension} from './math.mjs?v=20260910-fractions7';
 const form=document.getElementById('calculator');
-let mode='box',sheetUnit='cm',result;
+let mode='box',sheetUnit='cm',boxUnit='cm',result;
 const money=new Intl.NumberFormat('th-TH',{minimumFractionDigits:2,maximumFractionDigits:2});
 const unitMoney=new Intl.NumberFormat('th-TH',{minimumFractionDigits:2,maximumFractionDigits:4});
 const decimal=new Intl.NumberFormat('th-TH',{maximumFractionDigits:4});
@@ -10,9 +10,21 @@ const text=(id,value)=>{el(id).textContent=value;};
 const baht=value=>value===null?'—':`${money.format(value)} บาท`;
 const unitBaht=value=>value===null?'—':`${unitMoney.format(value)} บาท`;
 const outputIds=['paper-per-box','paper-total','blank-size','area','area-ft','cost-per-box','fee-per-box','all-total','all-per-box','profit-total','profit-margin','revenue','vat-total','invoice-total','target-price','mobile-cost','cost-profit-price','cost-profit-vat-price','cost-profit-discounted-price','pricing-cost','pricing-fee','pricing-profit'];
-function state(){const out={mode};for(const item of form.elements){if(!item.name)continue;out[item.name]=item.type==='number'?(item.validity.badInput?NaN:item.value.trim()===''?(item.name==='costPrice'?null:NaN):Number(item.value)):item.value;}return out;}
+function state(){const out={mode};for(const item of form.elements){if(!item.name)continue;out[item.name]=['width','length','height'].includes(item.name)?parseDimension(item.value):item.type==='number'?(item.validity.badInput?NaN:item.value.trim()===''?(item.name==='costPrice'?null:NaN):Number(item.value)):item.value;}return out;}
 function update(){
   const s=state();result=calculate(s);
+  const inInches=s.boxUnit==='inch';
+  el('box-dimension-inputs').classList.toggle('box-inch-inputs',inInches);
+  for(const key of ['width','length','height']){
+    text(`box-${key}-unit`,inInches?'นิ้ว':'ซม.');
+    form.elements.namedItem(key).setAttribute('inputmode',inInches?'text':'decimal');
+  }
+  text('box-size-help',inInches?'กรอกได้ เช่น กว้าง 5 3/8 · ยาว 7 1/8 · สูง 10 3/4 หรือใช้ทศนิยม ระยะเผื่อด้านล่างยังเป็นเซนติเมตร':'กรอกขนาดเป็นเซนติเมตร หรือเลือกหน่วยนิ้วเพื่อกรอกเศษส่วน');
+  el('box-size-converted').hidden=true;
+  if(mode==='box'&&inInches&&['width','length','height'].every(key=>Number.isFinite(s[key])&&s[key]>0)){
+    text('box-size-converted',`เท่ากับ ${['width','length','height'].map(key=>decimal.format(convertLength(s[key],'inch','cm'))).join(' × ')} ซม. (กว้าง × ยาว × สูง)`);
+    el('box-size-converted').hidden=false;
+  }
   const markupMode=s.profitBasis==='markup';
   const profitInput=form.elements.namedItem('targetMargin');
   if(markupMode)profitInput.removeAttribute('max');else profitInput.setAttribute('max','99.9999');
@@ -47,6 +59,20 @@ function update(){
 function setMode(next,focus=false){mode=next;for(const tab of document.querySelectorAll('[data-mode]')){const selected=tab.dataset.mode===next;tab.setAttribute('aria-selected',String(selected));tab.tabIndex=selected?0:-1;if(selected&&focus)tab.focus();}for(const panelMode of ['box','sheet']){const panel=el(`${panelMode}-fields`);panel.hidden=next!==panelMode;for(const input of panel.querySelectorAll('input,select'))input.disabled=next!==panelMode;}update();}
 for(const tab of document.querySelectorAll('[data-mode]')){tab.addEventListener('click',()=>setMode(tab.dataset.mode));tab.addEventListener('keydown',event=>{if(['ArrowLeft','ArrowRight','Home','End'].includes(event.key)){event.preventDefault();setMode(event.key==='Home'?'box':event.key==='End'?'sheet':mode==='box'?'sheet':'box',true);}});}
 function onFormChange(event){
+  if(event.target.name==='boxUnit'&&event.target.value!==boxUnit){
+    const next=event.target.value;
+    const inputs=['width','length','height'].map(key=>form.elements.namedItem(key));
+    if(inputs.some(input=>input.value.trim()!==''&&!Number.isFinite(parseDimension(input.value)))){
+      event.target.value=boxUnit;update();return;
+    }
+    if(['cm','inch'].includes(next)){
+      for(const input of inputs){
+        if(input.value.trim()==='')continue;
+        input.value=String(Number(convertLength(parseDimension(input.value),boxUnit,next).toPrecision(14)));
+      }
+      boxUnit=next;
+    }
+  }
   if(event.target.name==='sheetUnit'&&event.target.value!==sheetUnit){
     const next=event.target.value;
     if(Object.hasOwn(lengthUnits,next)){
@@ -59,5 +85,5 @@ function onFormChange(event){
 form.addEventListener('input',onFormChange);form.addEventListener('change',onFormChange);form.addEventListener('submit',event=>{event.preventDefault();showResults();});
 function showResults(){update();if(!result.ok){const field=form.elements.namedItem(result.errors[0].key);if(field){for(let node=field.parentElement;node;node=node.parentElement)if(node.tagName==='DETAILS')node.open=true;field.focus();}return;}el('cost-details').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'});el('cost-details').focus({preventScroll:true});}
 el('calculate-button').addEventListener('click',showResults);
-let toastTimer;el('reset').addEventListener('click',()=>{form.reset();sheetUnit='cm';setMode('box');el('toast').hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>{el('toast').hidden=true;},2200);});
+let toastTimer;el('reset').addEventListener('click',()=>{form.reset();sheetUnit='cm';boxUnit='cm';setMode('box');el('toast').hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>{el('toast').hidden=true;},2200);});
 update();

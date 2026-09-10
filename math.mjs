@@ -1,7 +1,21 @@
 export const lengthUnits=Object.freeze({cm:{cm:1,short:'ซม.'},inch:{cm:2.54,short:'นิ้ว'},m:{cm:100,short:'ม.'},ft:{cm:30.48,short:'ฟุต'}});
 export function convertLength(value,from,to){return Number.isFinite(value)&&Object.hasOwn(lengthUnits,from)&&Object.hasOwn(lengthUnits,to)?value*lengthUnits[from].cm/lengthUnits[to].cm:NaN;}
-export const defaults={mode:'box',width:32,length:75,height:24,widthAllowance:.4,glueAllowance:3.175,sheetWidth:56.4,sheetLength:217.175,sheetUnit:'cm',boxesPerSheet:1,paperRate:.68,paperUnit:'sqft',quantity:1000,paperAllowance:5,costPrice:null,costBasis:'ex',vat:7,discount:0,fee:0,targetMargin:25,profitBasis:'markup'};
+export function parseDimension(value){
+  if(typeof value==='number')return Number.isFinite(value)?value:NaN;
+  if(typeof value!=='string')return NaN;
+  const fractions={'¼':'1/4','½':'1/2','¾':'3/4','⅛':'1/8','⅜':'3/8','⅝':'5/8','⅞':'7/8'};
+  const text=value.replace(/[¼½¾⅛⅜⅝⅞]/g,c=>' '+fractions[c]).replace(/⁄/g,'/').trim();
+  if(/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)$/.test(text))return Number(text);
+  const match=text.match(/^(?:(\d+)\s+)?(\d+)\s*\/\s*(\d+)$/);
+  if(!match||Number(match[3])===0)return NaN;
+  const result=Number(match[1]??0)+Number(match[2])/Number(match[3]);
+  return Number.isFinite(result)?result:NaN;
+}
+export const defaults={mode:'box',boxUnit:'cm',width:32,length:75,height:24,widthAllowance:.4,glueAllowance:3.175,sheetWidth:56.4,sheetLength:217.175,sheetUnit:'cm',boxesPerSheet:1,paperRate:.68,paperUnit:'sqft',quantity:1000,paperAllowance:5,costPrice:null,costBasis:'ex',vat:7,discount:0,fee:0,targetMargin:25,profitBasis:'markup'};
 export function calculate(s){
+  s={...s};
+  const boxUnit=s.boxUnit??'cm';
+  if(s.mode==='box')for(const key of ['width','length','height'])s[key]=parseDimension(s[key]);
   const errors=[];
   const labels={width:'ความกว้างกล่อง',length:'ความยาวกล่อง',height:'ความสูงกล่อง',widthAllowance:'ระยะเผื่อความกว้าง',glueAllowance:'ระยะต่อลิ้นกาว',sheetWidth:'ความกว้างแผ่น',sheetLength:'ความยาวแผ่น',boxesPerSheet:'จำนวนกล่องต่อแผ่น',paperRate:'ราคากระดาษ',quantity:'จำนวนที่ผลิต',paperAllowance:'ค่าเผื่อเพิ่มต้นทุนกระดาษ',costPrice:'ราคาต้นทุน',vat:'VAT',discount:'ส่วนลด',fee:'ค่าธรรมเนียม',targetMargin:'กำไรเป้าหมาย'};
   const active=s.mode==='box'?['width','length','height','widthAllowance','glueAllowance']:['sheetWidth','sheetLength','boxesPerSheet'];
@@ -17,10 +31,11 @@ export function calculate(s){
   if(!['ex','inc'].includes(s.costBasis))errors.push({key:'costBasis',text:'เลือกฐานราคาต้นทุน'});
   if(!['markup','margin'].includes(profitBasis))errors.push({key:'profitBasis',text:'เลือกวิธีคิดกำไร'});
   const sheetUnit=s.sheetUnit??'cm';
+  if(s.mode==='box'&&!['cm','inch'].includes(boxUnit))errors.push({key:'boxUnit',text:'เลือกหน่วยขนาดกล่องเป็นเซนติเมตรหรือนิ้ว'});
   if(s.mode==='sheet'&&!Object.hasOwn(lengthUnits,sheetUnit))errors.push({key:'sheetUnit',text:'เลือกหน่วยขนาดแผ่นเป็นเซนติเมตร นิ้ว เมตร หรือฟุต'});
   if(errors.length)return{ok:false,errors};
-  const blankWidth=s.mode==='box'?s.width+s.height+s.widthAllowance:convertLength(s.sheetWidth,sheetUnit,'cm');
-  const blankLength=s.mode==='box'?2*(s.width+s.length)+s.glueAllowance:convertLength(s.sheetLength,sheetUnit,'cm');
+  const blankWidth=s.mode==='box'?convertLength(s.width,boxUnit,'cm')+convertLength(s.height,boxUnit,'cm')+s.widthAllowance:convertLength(s.sheetWidth,sheetUnit,'cm');
+  const blankLength=s.mode==='box'?2*(convertLength(s.width,boxUnit,'cm')+convertLength(s.length,boxUnit,'cm'))+s.glueAllowance:convertLength(s.sheetLength,sheetUnit,'cm');
   const boxesPerSheet=s.mode==='box'?1:s.boxesPerSheet;
   const sheets=Math.ceil(s.quantity/boxesPerSheet),areaSqm=blankWidth*blankLength/10000,areaSqft=areaSqm/.09290304;
   const paperBasePerSheet=(s.paperUnit==='sqft'?areaSqft:areaSqm)*s.paperRate;
