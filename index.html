@@ -13,8 +13,8 @@
   <script type="module" src="./pwa.js?v=20260909-pwa5"></script>
   <title>คำนวณต้นทุนกล่อง · Factorboxes</title>
   <meta name="description" content="กรอกขนาดกล่องและราคากระดาษ เพื่อคำนวณต้นทุนต่อกล่อง กำไร และราคาขายที่ต้องการ">
-  <link rel="stylesheet" href="./styles.css?v=20260910-fractions7">
-  <script type="module" src="./app.js?v=20260910-fractions7"></script>
+  <link rel="stylesheet" href="./styles.css?v=20260910-vat8">
+  <script type="module" src="./app.js?v=20260910-vat8"></script>
 </head>
 <body>
   <header class="topbar"><div class="brand"><img class="brand-mark" src="./icon-192.png?v=rainbow6" width="42" height="42" alt=""><span>FACTORBOXES<small>เครื่องคำนวณต้นทุน</small></span></div><button type="button" class="reset" id="reset">เริ่มใหม่</button></header>
@@ -61,11 +61,11 @@
             <p class="hint" id="cost-input-help">กรอกต้นทุนรวมจริงต่อกล่อง ซึ่งรวมค่ากระดาษแล้ว เว้นว่างเพื่อใช้ต้นทุนกระดาษจากด้านบน</p>
             <p class="hint" id="profit-basis-help">บวกกำไร 25% จากต้นทุน 100 บาท = 125 บาท ก่อนส่วนลด ค่าธรรมเนียม และ VAT</p>
             <div class="pricing-result" aria-labelledby="pricing-title">
-              <h3 id="pricing-title">ราคาตั้งขาย รวมต้นทุนและกำไร</h3>
+              <h3 id="pricing-title">ราคาตั้งขายรวม VAT</h3>
               <div class="pricing-number"><output id="cost-profit-price">—</output><span>บาท/กล่อง</span></div>
-              <p class="pricing-tax-note">ก่อนส่วนลดและก่อน VAT</p>
+              <p class="pricing-tax-note">รวมต้นทุน กำไร และ VAT แล้ว • ก่อนส่วนลด</p>
               <dl class="pricing-breakdown">
-                <div><dt>ราคาตั้งขายรวม VAT</dt><dd id="cost-profit-vat-price">—</dd></div>
+                <div><dt>ราคาตั้งขายก่อน VAT</dt><dd id="cost-profit-ex-price">—</dd></div>
                 <div id="discounted-price-row" hidden><dt>ราคาหลังส่วนลด รวม VAT</dt><dd id="cost-profit-discounted-price">—</dd></div>
                 <div class="pricing-divider"><dt>ต้นทุนสินค้า ก่อน VAT</dt><dd id="pricing-cost">—</dd></div>
                 <div><dt>ค่าธรรมเนียมต่อกล่อง</dt><dd id="pricing-fee">—</dd></div>
@@ -85,14 +85,14 @@
           <dl class="cost-breakdown"><div><dt>ต้นทุนสินค้าต่อกล่อง ก่อน VAT</dt><dd id="cost-per-box">—</dd></div><div><dt>ค่าธรรมเนียมต่อกล่องตามราคาแนะนำ</dt><dd id="fee-per-box">—</dd></div><div class="total"><dt>ต้นทุนรวมการขายต่อกล่อง</dt><dd id="all-per-box">—</dd></div><div><dt>ต้นทุนรวมของงาน ก่อน VAT</dt><dd id="all-total">—</dd></div></dl>
           <div class="profit-box"><div><span id="profit-title">กำไรเมื่อขายตามราคาแนะนำ</span><strong id="profit-total">—</strong></div><span id="profit-margin">—</span></div>
           <p class="scope-note" id="cost-scope">ใช้ต้นทุนกระดาษเป็นฐานคำนวณราคาขาย</p>
-          <details class="sale-details" open><summary>ราคาขายที่คำนวณจากต้นทุน</summary><dl class="cost-breakdown"><div class="target"><dt>ราคาขายแนะนำต่อกล่อง<small id="target-label">ก่อนลดและก่อน VAT</small></dt><dd id="target-price">—</dd></div><div><dt>ยอดขายตามราคาแนะนำ หลังลด / ก่อน VAT</dt><dd id="revenue">—</dd></div><div><dt>VAT ขายตามราคาแนะนำ</dt><dd id="vat-total">—</dd></div><div><dt>ยอดเรียกเก็บตามราคาแนะนำ รวม VAT</dt><dd id="invoice-total">—</dd></div></dl><p id="target-note" class="hint"></p></details>
+          <details class="sale-details" open><summary>ราคาขายที่คำนวณจากต้นทุน</summary><dl class="cost-breakdown"><div class="target"><dt>ราคาตั้งขายรวม VAT ต่อกล่อง<small id="target-label">รวม VAT แล้ว • ก่อนส่วนลด</small></dt><dd id="target-price">—</dd></div><div><dt>ยอดขายตามราคาแนะนำ หลังลด / ก่อน VAT</dt><dd id="revenue">—</dd></div><div><dt>VAT ขายตามราคาแนะนำ</dt><dd id="vat-total">—</dd></div><div><dt>ยอดเรียกเก็บตามราคาแนะนำ รวม VAT</dt><dd id="invoice-total">—</dd></div></dl><p id="target-note" class="hint"></p></details>
         </div>
       </aside>
     </div>
     <details class="method"><summary>สูตรและวิธีใช้</summary><div class="method-content"><p><strong>จากขนาดกล่อง:</strong> เลือกเซนติเมตรหรือนิ้วได้ นิ้วรับทั้งทศนิยมและเศษส่วน เช่น 5 3/8 = 5.375 นิ้ว โปรแกรมแปลงขนาดเป็นเซนติเมตรก่อนคำนวณ ส่วนระยะเผื่อกระดาษยังกรอกเป็นเซนติเมตร  หน้ากระดาษ = กว้าง + สูง + ระยะเผื่อความกว้าง ความยาวแผ่น = 2 × (กว้าง + ยาว) + ระยะต่อลิ้นกาว ตามสูตรในไฟล์เดิม</p><p><strong>หน่วยขนาดแผ่น:</strong> 1 นิ้ว = 2.54 ซม. 1 เมตร = 100 ซม. และ 1 ฟุต = 30.48 ซม. เลือกหน่วยความกว้างและความยาวแยกจากหน่วยราคากระดาษได้</p><p><strong>ราคากระดาษ:</strong> พื้นที่แผ่น × ราคาต่อหน่วย × (1 + ค่าเผื่อเพิ่ม) โดย 1 ตารางฟุต = 0.09290304 ตารางเมตร ค่าเผื่อเพิ่มเป็นการบวกต้นทุน ไม่ใช่อัตราของเสียจากการผลิต</p><p><strong>กรณีหลายกล่องต่อแผ่น:</strong> ปัดจำนวนแผ่นที่ต้องซื้อขึ้นเป็นจำนวนเต็ม แล้วเฉลี่ยต้นทุนตามจำนวนกล่องที่ผลิต</p><p><strong>ราคาต้นทุน:</strong> กรอกต้นทุนรวมต่อกล่อง ซึ่งรวมค่ากระดาษและค่าใช้จ่ายผลิตแล้ว หากเว้นว่าง โปรแกรมจะใช้ต้นทุนกระดาษเป็นฐาน เมื่อเลือกฐานต้นทุนรวม VAT โปรแกรมจะแยก VAT ออกจากตัวเลขที่กรอก</p><p><strong>บวกกำไรจากต้นทุน:</strong> ราคาตั้งขาย = ต้นทุนสินค้าก่อน VAT × (1 + กำไรที่ต้องการ) ÷ (1 − ค่าธรรมเนียม) ÷ (1 − ส่วนลด) เช่น ต้นทุน 100 บาท กำไร 25% โดยไม่มีส่วนลดหรือค่าธรรมเนียม ได้ราคาขาย 125 บาท</p><p><strong>กำไรเป็นเปอร์เซ็นต์ของยอดขาย:</strong> ราคาตั้งขาย = ต้นทุนสินค้าก่อน VAT ÷ (1 − กำไรที่ต้องการ − ค่าธรรมเนียม) ÷ (1 − ส่วนลด) เช่น ต้นทุน 100 บาท กำไร 25% โดยไม่มีส่วนลดหรือค่าธรรมเนียม ได้ราคาขาย 133.34 บาท เมื่อปัดขึ้นเป็นสตางค์</p><p>ทุกสูตรแปลงเปอร์เซ็นต์เป็นทศนิยมก่อนคำนวณ ราคาตั้งขายก่อน VAT ปัดขึ้นเป็นสตางค์เพื่อให้กำไรถึงเป้าหมาย กำไรต่อกล่อง = ราคาหลังส่วนลดก่อน VAT − ต้นทุนสินค้า − ค่าธรรมเนียม ส่วนลดคิดจากราคาตั้งขาย ส่วนค่าธรรมเนียมคิดจากยอดขายหลังส่วนลดก่อน VAT ยอด VAT ของงานคำนวณจากยอดขายรวมก่อน VAT โดยไม่ปัดค่าระหว่างขั้นตอน</p><p>กำไรที่แสดงเป็นประมาณการเมื่อขายครบจำนวนตามราคาแนะนำ ก่อนภาษีเงินได้และค่าใช้จ่ายที่ไม่ได้รวมไว้ในต้นทุน หากมี VAT ที่ขอคืนไม่ได้ให้รวมส่วนนั้นในต้นทุนและเลือกฐานยังไม่รวม VAT อัตรา VAT เริ่มต้น 7% มาจากไฟล์เดิมและแก้ไขได้</p><p>ค่าที่แสดงเริ่มต้นใช้สำหรับทดลองคำนวณ หน้านี้คำนวณงานปัจจุบันและไม่บันทึกข้อมูลเมื่อปิดหรือโหลดหน้าใหม่</p></div></details>
     <footer>FACTORBOXES <span>คำนวณด้วยราคาซื้อจริงในแต่ละช่วงเวลา</span></footer>
   </main>
-  <div class="action-bar"><div><span>ต้นทุน + กำไร ก่อน VAT</span><strong id="mobile-cost">—</strong></div><button type="button" id="calculate-button">ดูต้นทุนและกำไร <span aria-hidden="true">↗</span></button></div>
+  <div class="action-bar"><div><span>ราคาตั้งขายรวม VAT</span><strong id="mobile-cost">—</strong></div><button type="button" id="calculate-button">ดูต้นทุนและกำไร <span aria-hidden="true">↗</span></button></div>
   <div class="toast" id="toast" role="status" hidden>คืนค่าตัวอย่างแล้ว</div>
   <dialog id="install-help" class="install-dialog" aria-labelledby="install-help-title">
     <h2 id="install-help-title">เพิ่มโปรแกรมลงหน้าจอ</h2>

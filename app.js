@@ -1,4 +1,4 @@
-import {calculate,lengthUnits,convertLength,parseDimension} from './math.mjs?v=20260910-fractions7';
+import {calculate,lengthUnits,convertLength,parseDimension} from './math.mjs?v=20260910-vat8';
 const form=document.getElementById('calculator');
 let mode='box',sheetUnit='cm',boxUnit='cm',result;
 const money=new Intl.NumberFormat('th-TH',{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -9,7 +9,7 @@ const el=id=>document.getElementById(id);
 const text=(id,value)=>{el(id).textContent=value;};
 const baht=value=>value===null?'—':`${money.format(value)} บาท`;
 const unitBaht=value=>value===null?'—':`${unitMoney.format(value)} บาท`;
-const outputIds=['paper-per-box','paper-total','blank-size','area','area-ft','cost-per-box','fee-per-box','all-total','all-per-box','profit-total','profit-margin','revenue','vat-total','invoice-total','target-price','mobile-cost','cost-profit-price','cost-profit-vat-price','cost-profit-discounted-price','pricing-cost','pricing-fee','pricing-profit'];
+const outputIds=['paper-per-box','paper-total','blank-size','area','area-ft','cost-per-box','fee-per-box','all-total','all-per-box','profit-total','profit-margin','revenue','vat-total','invoice-total','target-price','mobile-cost','cost-profit-price','cost-profit-ex-price','cost-profit-discounted-price','pricing-cost','pricing-fee','pricing-profit'];
 function state(){const out={mode};for(const item of form.elements){if(!item.name)continue;out[item.name]=['width','length','height'].includes(item.name)?parseDimension(item.value):item.type==='number'?(item.validity.badInput?NaN:item.value.trim()===''?(item.name==='costPrice'?null:NaN):Number(item.value)):item.value;}return out;}
 function update(){
   const s=state();result=calculate(s);
@@ -36,7 +36,7 @@ function update(){
   el('input-error').hidden=result.ok;
   if(!result.ok){text('input-error',result.errors[0].text);for(const error of result.errors){const item=form.elements.namedItem(error.key);if(item)item.setAttribute('aria-invalid','true');}for(const id of outputIds)text(id,'—');text('quantity-label','ตรวจข้อมูล');text('paper-scope','กรอกข้อมูลให้ครบเพื่อคำนวณ');text('cost-scope','ผลคำนวณจะแสดงเมื่อข้อมูลครบ');text('target-note','');text('target-label','');text('pricing-note',result.errors[0].text);form.elements.namedItem('costPrice').placeholder='ใช้ต้นทุนกระดาษ';document.querySelector('.profit-box').className='profit-box neutral';return;}
   const r=result;
-  text('paper-per-box',money.format(r.paperPerBox));text('mobile-cost',r.target===null?'—':`฿${money.format(r.target)}`);text('paper-total',baht(r.paperTotal));text('quantity-label',`${integer.format(s.quantity)} กล่อง`);
+  text('paper-per-box',money.format(r.paperPerBox));text('mobile-cost',r.target===null?'—':`฿${unitMoney.format(r.targetWithVat)}`);text('paper-total',baht(r.paperTotal));text('quantity-label',`${integer.format(s.quantity)} กล่อง`);
   text('paper-scope',`รวมค่าเผื่อเพิ่ม ${decimal.format(s.paperAllowance)}%${mode==='sheet'?` · ใช้ ${integer.format(r.sheets)} แผ่น`:''}`);
   const sheetMode=mode==='sheet';
   text('blank-size',sheetMode?`${decimal.format(s.sheetWidth)} × ${decimal.format(s.sheetLength)} ${lengthUnits[s.sheetUnit].short}`:`${decimal.format(r.blankWidth)} × ${decimal.format(r.blankLength)} ซม.`);
@@ -47,9 +47,9 @@ function update(){
   const suggestedInputCost=r.paperPerBox*(s.costBasis==='inc'?1+s.vat/100:1);
   form.elements.namedItem('costPrice').placeholder=money.format(suggestedInputCost);
   text('cost-scope',r.usePaperCost?'ใช้ค่ากระดาษเป็นฐาน หากมีต้นทุนอื่น ให้กรอกต้นทุนรวมจริงในส่วนที่ 3':`ใช้ต้นทุนสินค้าที่กรอก ${baht(r.costPerBox)}/กล่อง ก่อน VAT เป็นฐานคำนวณราคาขาย`);
-  text('revenue',baht(r.revenue));text('vat-total',baht(r.vatTotal));text('invoice-total',baht(r.invoiceTotal));text('target-price',r.target===null?'คำนวณไม่ได้':baht(r.target));text('target-label',`กำไร ${decimal.format(s.targetMargin)}% ${markupMode?'จากต้นทุน':'ของยอดขาย'}`);text('target-note',r.target===null?'กำไรเป้าหมายรวมกับค่าธรรมเนียมต้องน้อยกว่า 100%':'ราคาต่อกล่องก่อนส่วนลดและก่อน VAT ปัดขึ้นเป็นสตางค์ กำไรคำนวณเมื่อขายตามราคานี้ ก่อนภาษีเงินได้');
-  text('cost-profit-price',r.target===null?'คำนวณไม่ได้':money.format(r.target));
-  text('cost-profit-vat-price',unitBaht(r.targetWithVat));
+  text('revenue',baht(r.revenue));text('vat-total',baht(r.vatTotal));text('invoice-total',baht(r.invoiceTotal));text('target-price',r.target===null?'คำนวณไม่ได้':unitBaht(r.targetWithVat));text('target-label',`กำไร ${decimal.format(s.targetMargin)}% ${markupMode?'จากต้นทุน':'ของยอดขาย'}`);text('target-note',r.target===null?'กำไรเป้าหมายรวมกับค่าธรรมเนียมต้องน้อยกว่า 100%':'ราคาต่อกล่องรวม VAT แล้ว ก่อนส่วนลด กำไรคำนวณจากยอดขายก่อน VAT และก่อนภาษีเงินได้');
+  text('cost-profit-price',r.target===null?'คำนวณไม่ได้':unitMoney.format(r.targetWithVat));
+  text('cost-profit-ex-price',unitBaht(r.target));
   text('cost-profit-discounted-price',unitBaht(r.saleWithVat));
   text('pricing-cost',unitBaht(r.costPerBox));
   text('pricing-fee',unitBaht(r.feePerBox));
