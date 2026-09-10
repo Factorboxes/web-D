@@ -1,4 +1,4 @@
-import {calculate,lengthUnits,convertLength,parseDimension} from './math.mjs?v=20260910-papervat9';
+import {calculate,lengthUnits,convertLength,parseDimension} from './math.mjs?v=20260910-paperdisplay10';
 const form=document.getElementById('calculator');
 let mode='box',sheetUnit='cm',boxUnit='cm',result;
 const money=new Intl.NumberFormat('th-TH',{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -36,9 +36,13 @@ function update(){
   el('input-error').hidden=result.ok;
   if(!result.ok){text('input-error',result.errors[0].text);for(const error of result.errors){const item=form.elements.namedItem(error.key);if(item)item.setAttribute('aria-invalid','true');}for(const id of outputIds)text(id,'—');text('quantity-label','ตรวจข้อมูล');text('paper-scope','กรอกข้อมูลให้ครบเพื่อคำนวณ');text('cost-scope','ผลคำนวณจะแสดงเมื่อข้อมูลครบ');text('target-note','');text('target-label','');text('pricing-note',result.errors[0].text);form.elements.namedItem('costPrice').placeholder='ใช้ต้นทุนกระดาษ';document.querySelector('.profit-box').className='profit-box neutral';return;}
   const r=result;
-  text('paper-per-box',money.format(r.paperPerBox));text('mobile-cost',r.target===null?'—':`฿${unitMoney.format(r.targetWithVat)}`);text('paper-total',baht(r.paperTotal));text('quantity-label',`${integer.format(s.quantity)} กล่อง`);
+  const paperInc=el('paper-display-basis').value==='inc';
+  const paperDisplayTotal=paperInc?r.paperTotalInc:r.paperTotal;
+  text('paper-result-title',`ต้นทุนกระดาษต่อกล่อง ${paperInc?'รวม VAT':'ก่อน VAT'}`);
+  text('paper-total-title',`ค่ากระดาษรวมของงาน ${paperInc?'รวม VAT':'ก่อน VAT'}`);
+  text('paper-per-box',money.format(paperDisplayTotal/s.quantity));text('mobile-cost',r.target===null?'—':`฿${unitMoney.format(r.targetWithVat)}`);text('paper-total',baht(paperDisplayTotal));text('quantity-label',`${integer.format(s.quantity)} กล่อง`);
   text('paper-vat-summary',`ราคาก่อน VAT ${unitMoney.format(r.paperRateEx)} + VAT ${unitMoney.format(r.paperRateVat)} = รวม VAT ${unitMoney.format(r.paperRateInc)} บาท/${s.paperUnit==='sqft'?'ตร.ฟุต':'ตร.ม.'} · ยอดกระดาษรวมค่าเผื่อและ VAT ${baht(r.paperTotalInc)}`);
-  text('paper-scope',`รวมค่าเผื่อเพิ่ม ${decimal.format(s.paperAllowance)}%${mode==='sheet'?` · ใช้ ${integer.format(r.sheets)} แผ่น`:''}`);
+  text('paper-scope',`${paperInc?`รวม VAT กระดาษ ${decimal.format(s.paperVat)}% · `:'ไม่รวม VAT · '}รวมค่าเผื่อเพิ่ม ${decimal.format(s.paperAllowance)}%${mode==='sheet'?` · ใช้ ${integer.format(r.sheets)} แผ่น`:''}`);
   const sheetMode=mode==='sheet';
   text('blank-size',sheetMode?`${decimal.format(s.sheetWidth)} × ${decimal.format(s.sheetLength)} ${lengthUnits[s.sheetUnit].short}`:`${decimal.format(r.blankWidth)} × ${decimal.format(r.blankLength)} ซม.`);
   if(sheetMode&&s.sheetUnit!=='cm'){text('blank-cm',`${decimal.format(r.blankWidth)} × ${decimal.format(r.blankLength)} ซม.`);el('blank-cm').hidden=false;}
@@ -86,5 +90,7 @@ function onFormChange(event){
 form.addEventListener('input',onFormChange);form.addEventListener('change',onFormChange);form.addEventListener('submit',event=>{event.preventDefault();showResults();});
 function showResults(){update();if(!result.ok){const field=form.elements.namedItem(result.errors[0].key);if(field){for(let node=field.parentElement;node;node=node.parentElement)if(node.tagName==='DETAILS')node.open=true;field.focus();}return;}el('cost-details').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'});el('cost-details').focus({preventScroll:true});}
 el('calculate-button').addEventListener('click',showResults);
-let toastTimer;el('reset').addEventListener('click',()=>{form.reset();sheetUnit='cm';boxUnit='cm';setMode('box');el('toast').hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>{el('toast').hidden=true;},2200);});
+let toastTimer;el('reset').addEventListener('click',()=>{form.reset();el('paper-display-basis').value='inc';sheetUnit='cm';boxUnit='cm';setMode('box');el('toast').hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>{el('toast').hidden=true;},2200);});
 update();
+
+el('paper-display-basis').addEventListener('change',update);
