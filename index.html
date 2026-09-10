@@ -13,8 +13,8 @@
   <script type="module" src="./pwa.js?v=20260909-pwa5"></script>
   <title>คำนวณต้นทุนกล่อง · Factorboxes</title>
   <meta name="description" content="กรอกขนาดกล่องและราคากระดาษ เพื่อคำนวณต้นทุนต่อกล่อง กำไร และราคาขายที่ต้องการ">
-  <link rel="stylesheet" href="./styles.css?v=20260910-vat8">
-  <script type="module" src="./app.js?v=20260910-vat8"></script>
+  <link rel="stylesheet" href="./styles.css?v=20260910-papervat9">
+  <script type="module" src="./app.js?v=20260910-papervat9"></script>
 </head>
 <body>
   <header class="topbar"><div class="brand"><img class="brand-mark" src="./icon-192.png?v=rainbow6" width="42" height="42" alt=""><span>FACTORBOXES<small>เครื่องคำนวณต้นทุน</small></span></div><button type="button" class="reset" id="reset">เริ่มใหม่</button></header>
@@ -51,7 +51,10 @@
         <section class="panel" aria-labelledby="paper-heading">
           <div class="section-title"><span class="step">02</span><h2 id="paper-heading">ราคากระดาษ</h2><span class="section-note">ปรับได้ทุกครั้ง</span></div>
           <div class="fields two rate-fields"><label>ราคาซื้อกระดาษ<input class="rate-input" name="paperRate" type="number" inputmode="decimal" min="0.000001" step="any" value="0.68" required></label><label>หน่วยราคา<select name="paperUnit"><option value="sqft">บาท / ตารางฟุต</option><option value="sqm">บาท / ตารางเมตร</option></select></label></div>
+          <div class="fields two"><label>ฐานราคาซื้อกระดาษ<select name="paperBasis"><option value="ex">ยังไม่รวม VAT</option><option value="inc">รวม VAT แล้ว</option></select></label><label>VAT กระดาษ <span class="unit-label">%</span><input name="paperVat" type="number" inputmode="decimal" min="0" max="100" step="any" value="7" required></label></div>
+          <p class="hint" id="paper-vat-summary" aria-live="polite"></p>
           <div class="fields two"><label>จำนวนที่ผลิต <span class="unit-label">กล่อง</span><input name="quantity" type="number" inputmode="numeric" min="1" step="1" value="1000" required></label><label>ค่าเผื่อเพิ่มต้นทุนกระดาษ <span class="unit-label">%</span><input name="paperAllowance" type="number" inputmode="decimal" min="0" step="any" value="5" required></label></div>
+          <p class="hint">โปรแกรมใช้ราคากระดาษก่อน VAT คำนวณต้นทุนและกำไร และแสดง VAT ซื้อแยกจาก VAT ขาย</p>
           <p class="hint">0.68 บาท/ตร.ฟุต เป็นค่าจากไฟล์เดิม กรุณาเปลี่ยนเป็นราคาซื้อของช่วงที่ต้องการคำนวณ</p>
         </section>
         <section class="panel cost-details" id="cost-details" aria-labelledby="cost-heading" tabindex="-1">
@@ -79,7 +82,7 @@
       </form>
       <aside class="results" id="results" aria-labelledby="results-heading" tabindex="-1">
         <div class="result-top"><h2 id="results-heading">ผลคำนวณของคุณ</h2><span id="quantity-label">1,000 กล่อง</span></div>
-        <div class="cost-hero"><p>ต้นทุนกระดาษต่อกล่อง</p><div class="hero-number"><span class="currency">฿</span><output id="paper-per-box">—</output></div><p id="paper-scope">รวมค่าเผื่อเพิ่ม 5%</p><div class="paper-total"><span>ค่ากระดาษรวมของงาน</span><strong id="paper-total">—</strong></div></div>
+        <div class="cost-hero"><p>ต้นทุนกระดาษต่อกล่อง ก่อน VAT</p><div class="hero-number"><span class="currency">฿</span><output id="paper-per-box">—</output></div><p id="paper-scope">รวมค่าเผื่อเพิ่ม 5%</p><div class="paper-total"><span>ค่ากระดาษรวมของงาน</span><strong id="paper-total">—</strong></div></div>
         <div class="result-body">
           <div class="measurements"><div><span>ขนาดแผ่นกระดาษ</span><strong id="blank-size">—</strong><small id="blank-cm" hidden></small></div><div><span>พื้นที่ต่อแผ่น</span><strong id="area">—</strong><small id="area-ft">—</small></div></div>
           <dl class="cost-breakdown"><div><dt>ต้นทุนสินค้าต่อกล่อง ก่อน VAT</dt><dd id="cost-per-box">—</dd></div><div><dt>ค่าธรรมเนียมต่อกล่องตามราคาแนะนำ</dt><dd id="fee-per-box">—</dd></div><div class="total"><dt>ต้นทุนรวมการขายต่อกล่อง</dt><dd id="all-per-box">—</dd></div><div><dt>ต้นทุนรวมของงาน ก่อน VAT</dt><dd id="all-total">—</dd></div></dl>

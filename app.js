@@ -1,4 +1,4 @@
-import {calculate,lengthUnits,convertLength,parseDimension} from './math.mjs?v=20260910-vat8';
+import {calculate,lengthUnits,convertLength,parseDimension} from './math.mjs?v=20260910-papervat9';
 const form=document.getElementById('calculator');
 let mode='box',sheetUnit='cm',boxUnit='cm',result;
 const money=new Intl.NumberFormat('th-TH',{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -9,7 +9,7 @@ const el=id=>document.getElementById(id);
 const text=(id,value)=>{el(id).textContent=value;};
 const baht=value=>value===null?'—':`${money.format(value)} บาท`;
 const unitBaht=value=>value===null?'—':`${unitMoney.format(value)} บาท`;
-const outputIds=['paper-per-box','paper-total','blank-size','area','area-ft','cost-per-box','fee-per-box','all-total','all-per-box','profit-total','profit-margin','revenue','vat-total','invoice-total','target-price','mobile-cost','cost-profit-price','cost-profit-ex-price','cost-profit-discounted-price','pricing-cost','pricing-fee','pricing-profit'];
+const outputIds=['paper-vat-summary','paper-per-box','paper-total','blank-size','area','area-ft','cost-per-box','fee-per-box','all-total','all-per-box','profit-total','profit-margin','revenue','vat-total','invoice-total','target-price','mobile-cost','cost-profit-price','cost-profit-ex-price','cost-profit-discounted-price','pricing-cost','pricing-fee','pricing-profit'];
 function state(){const out={mode};for(const item of form.elements){if(!item.name)continue;out[item.name]=['width','length','height'].includes(item.name)?parseDimension(item.value):item.type==='number'?(item.validity.badInput?NaN:item.value.trim()===''?(item.name==='costPrice'?null:NaN):Number(item.value)):item.value;}return out;}
 function update(){
   const s=state();result=calculate(s);
@@ -37,6 +37,7 @@ function update(){
   if(!result.ok){text('input-error',result.errors[0].text);for(const error of result.errors){const item=form.elements.namedItem(error.key);if(item)item.setAttribute('aria-invalid','true');}for(const id of outputIds)text(id,'—');text('quantity-label','ตรวจข้อมูล');text('paper-scope','กรอกข้อมูลให้ครบเพื่อคำนวณ');text('cost-scope','ผลคำนวณจะแสดงเมื่อข้อมูลครบ');text('target-note','');text('target-label','');text('pricing-note',result.errors[0].text);form.elements.namedItem('costPrice').placeholder='ใช้ต้นทุนกระดาษ';document.querySelector('.profit-box').className='profit-box neutral';return;}
   const r=result;
   text('paper-per-box',money.format(r.paperPerBox));text('mobile-cost',r.target===null?'—':`฿${unitMoney.format(r.targetWithVat)}`);text('paper-total',baht(r.paperTotal));text('quantity-label',`${integer.format(s.quantity)} กล่อง`);
+  text('paper-vat-summary',`ราคาก่อน VAT ${unitMoney.format(r.paperRateEx)} + VAT ${unitMoney.format(r.paperRateVat)} = รวม VAT ${unitMoney.format(r.paperRateInc)} บาท/${s.paperUnit==='sqft'?'ตร.ฟุต':'ตร.ม.'} · ยอดกระดาษรวมค่าเผื่อและ VAT ${baht(r.paperTotalInc)}`);
   text('paper-scope',`รวมค่าเผื่อเพิ่ม ${decimal.format(s.paperAllowance)}%${mode==='sheet'?` · ใช้ ${integer.format(r.sheets)} แผ่น`:''}`);
   const sheetMode=mode==='sheet';
   text('blank-size',sheetMode?`${decimal.format(s.sheetWidth)} × ${decimal.format(s.sheetLength)} ${lengthUnits[s.sheetUnit].short}`:`${decimal.format(r.blankWidth)} × ${decimal.format(r.blankLength)} ซม.`);
